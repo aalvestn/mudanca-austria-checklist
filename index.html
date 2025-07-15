@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Mudança Áustria - Reorganizado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .subtitle {
+            margin-top: 10px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 120px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .filters {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .priority-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e3f2fd;
+            transition: background 0.3s;
+        }
+        
+        .priority-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-align: center;
+            color: white;
+            display: inline-block;
+            min-width: 80px;
+        }
+        
+        .urgente { background: #e74c3c; }
+        .importante { background: #f39c12; }
+        .planejamento { background: #3498db; }
+        .futuro { background: #95a5a6; }
+        
+        .status-select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .status-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .tarefa-cell {
+            max-width: 300px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .observacoes-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+            resize: vertical;
+            min-height: 40px;
+        }
+
+        .responsavel-input, .dependencias-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        
+        .data-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+            width: 130px;
+        }
+        
+        .responsavel-input:focus, .dependencias-input:focus, .data-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        
+        .dependencias-input {
+            min-width: 150px;
+        }
+        
+        .export-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .sync-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        
+        .sync-status.syncing {
+            background: #f39c12;
+        }
+        
+        .sync-status.error {
+            background: #e74c3c;
+        }
+        
+        .github-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 20px;
+            border-left: 4px solid #3498db;
+            font-size: 0.9em;
+        }
+        
+        .github-info strong {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="sync-status" id="syncStatus">
+        ☁️ Sincronizado
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🇦🇹 Checklist Mudança Áustria</h1>
+            <div class="subtitle">Versão Reorganizada - Pronta para Uso</div>
+        </div>
+        
+        <div class="github-info">
+            <strong>💾 Sistema de Backup Automático Ativo!</strong><br>
+            📊 Repositório: <code>aalvestn/mudanca-austria-checklist</code><br>
+            ☁️ Todas as alterações são salvas automaticamente na nuvem<br>
+            📱 Acesse de qualquer dispositivo - as mudanças ficam sincronizadas!
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTarefas">143</div>
+                <div class="stat-label">Total de Tarefas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="urgentes">38</div>
+                <div class="stat-label">Urgentes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="concluidas">0</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="progresso">0%</div>
+                <div class="stat-label">Progresso</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label>Filtrar por:</label>
+                <select id="filtrarPrioridade">
+                    <option value="">Todas as Prioridades</option>
+                    <option value="URGENTE">🔴 Urgente</option>
+                    <option value="IMPORTANTE">🟡 Importante</option>
+                    <option value="PLANEJAMENTO">🔵 Planejamento</option>
+                    <option value="FUTURO">⚫ Futuro</option>
+                </select>
+                
+                <select id="filtrarStatus">
+                    <option value="">Todos os Status</option>
+                    <option value="Não iniciado">Não iniciado</option>
+                    <option value="Em andamento">Em andamento</option>
+                    <option value="Concluído">Concluído</option>
+                </select>
+                
+                <input type="text" id="pesquisar" placeholder="Pesquisar tarefa...">
+            </div>
+            
+            <div class="priority-legend">
+                <div class="legend-item">
+                    <div class="legend-color urgente"></div>
+                    <span>🔴 Urgente - Fazer agora</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color importante"></div>
+                    <span>🟡 Importante - Próximos 30 dias</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color planejamento"></div>
+                    <span>🔵 Planejamento - Próximos 3 meses</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color futuro"></div>
+                    <span>⚫ Futuro - Mais de 3 meses</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="tabelaTarefas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Prioridade</th>
+                        <th>Tarefa</th>
+                        <th>Data Sugerida</th>
+                        <th>Responsável</th>
+                        <th>Status</th>
+                        <th>Progresso</th>
+                        <th>Dependências</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                    <!-- Dados serão inseridos aqui pelo JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <button class="export-btn" onclick="exportarParaExcel()">
+        📊 Exportar Excel
+    </button>
+    
+    <script>
+        // Dados reorganizados da planilha original
+        const tarefasOriginais = [
+            {categoria: "Antes da Mudança", tarefa: "Verificar validade dos passaportes (mínimo 6 meses)", responsavel: "Priscila"},
+            {categoria: "Planejamento Inicial", tarefa: "Definir cidade de destino na Áustria", responsavel: "Priscila"},
+            {categoria: "Planejamento Inicial", tarefa: "Pesquisar custo de vida, clima, cultura, saúde e transporte", responsavel: "Priscila"},
+            {categoria: "Planejamento Inicial", tarefa: "Verificar tipo de visto necessário (trabalho, estudo, familiar)", responsavel: "Priscila"},
+            {categoria: "Antes da Mudança", tarefa: "Traduzir certidão de casamento por tradutor juramentado", responsavel: "Priscila"},
+            {categoria: "Antes da Mudança", tarefa: "Apostilar certidão de casamento (Convenção de Haia)", responsavel: "Priscila"},
+            {categoria: "Antes da Mudança", tarefa: "Separar comprovante de cidadania alemã (passaporte alemão)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir certidão de nascimento (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir certidão de nascimento (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir certidão de casamento", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar certidão de nascimento (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar certidão de nascimento (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar certidão de casamento", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir histórico escolar (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir histórico escolar (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar histórico escolar (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar histórico escolar (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir diploma universitário (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir diploma universitário (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar diploma universitário (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar diploma universitário (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir certidão de antecedentes criminais (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Traduzir certidão de antecedentes criminais (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar certidão de antecedentes criminais (esposa)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Apostilar certidão de antecedentes criminais (marido)", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Solicitar certidão de antecedentes criminais da Polícia Federal", responsavel: "Priscila"},
+            {categoria: "Documentos", tarefa: "Solicitar certidão de antecedentes criminais da Polícia Civil", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Preencher formulário de visto online", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Agendar consulta no consulado austríaco", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Preparar documentos para visto", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Comparecer à consulta no consulado", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Pagar taxas consulares", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Aguardar aprovação do visto", responsavel: "Priscila"},
+            {categoria: "Visto", tarefa: "Retirar passaporte com visto", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Abrir conta bancária internacional", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Transferir dinheiro para conta austríaca", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Contratar seguro de saúde internacional", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Declarar saída definitiva à Receita Federal", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Cancelar conta bancária no Brasil", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Cancelar cartões de crédito", responsavel: "Priscila"},
+            {categoria: "Financeiro", tarefa: "Transferir investimentos", responsavel: "Priscila"},
+            {categoria: "Saúde", tarefa: "Fazer exames médicos obrigatórios", responsavel: "Priscila"},
+            {categoria: "Saúde", tarefa: "Atualizar cartão de vacinação", responsavel: "Priscila"},
+            {categoria: "Saúde", tarefa: "Solicitar histórico médico", responsavel: "Priscila"},
+            {categoria: "Saúde", tarefa: "Traduzir histórico médico", responsavel: "Priscila"},
+            {categoria: "Saúde", tarefa: "Contratar seguro de saúde para período inicial", responsavel: "Priscila"},
+            {categoria: "Trabalho", tarefa: "Pesquisar oportunidades de trabalho", responsavel: "Priscila"},
+            {categoria: "Trabalho", tarefa: "Atualizar currículo em alemão", responsavel: "Priscila"},
+            {categoria: "Trabalho", tarefa: "Candidatar-se a vagas", responsavel: "Priscila"},
+            {categoria: "Trabalho", tarefa: "Participar de entrevistas", responsavel: "Priscila"},
+            {categoria: "Trabalho", tarefa: "Negociar contrato de trabalho", responsavel: "Priscila"},
+            {categoria: "Trabalho", tarefa: "Obter autorização de trabalho", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Pesquisar imóveis online", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Contatar corretores imobiliários", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Agendar visitas a imóveis", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Negociar contrato de aluguel", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Pagar depósito e primeira mensalidade", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Contratar serviços de internet", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Contratar serviços de gás", responsavel: "Priscila"},
+            {categoria: "Moradia", tarefa: "Contratar serviços de eletricidade", responsavel: "Priscila"},
+            {categoria: "Educação", tarefa: "Pesquisar escolas para filhos", responsavel: "Priscila"},
+            {categoria: "Educação", tarefa: "Fazer matrícula nas escolas", responsavel: "Priscila"},
+            {categoria: "Educação", tarefa: "Providenciar documentos escolares", responsavel: "Priscila"},
+            {categoria: "Educação", tarefa: "Contratar aulas de alemão", responsavel: "Priscila"},
+            {categoria: "Transporte", tarefa: "Pesquisar sistema de transporte público", responsavel: "Priscila"},
+            {categoria: "Transporte", tarefa: "Obter carteira de motorista internacional", responsavel: "Priscila"},
+            {categoria: "Transporte", tarefa: "Pesquisar sobre conversão de CNH", responsavel: "Priscila"},
+            {categoria: "Transporte", tarefa: "Comprar bilhetes de transporte", responsavel: "Priscila"},
+            {categoria: "Mudança", tarefa: "Contratar empresa de mudanças internacionais", responsavel: "Priscila"},
+            {categoria: "Mudança", tarefa: "Fazer inventário de bens", responsavel: "Priscila"},
+            {categoria: "Mudança", tarefa: "Embalar pertences", responsavel: "Priscila"},
+            {categoria: "Mudança", tarefa: "Contratar seguro de mudança", responsavel: "Priscila"},
+            {categoria: "Mudança", tarefa: "Acompanhar transporte de bens", responsavel: "Priscila"},
+            {categoria: "Mudança", tarefa: "Receber bens na Áustria", responsavel: "Priscila"},
+            {categoria: "Pets", tarefa: "Vacinar pets conforme exigências", responsavel: "Priscila"},
+            {categoria: "Pets", tarefa: "Obter certificado veterinário", responsavel: "Priscila"},
+            {categoria: "Pets", tarefa: "Contratar transporte para pets", responsavel: "Priscila"},
+            {categoria: "Pets", tarefa: "Preparar documentação para pets", responsavel: "Priscila"},
+            {categoria: "Registro na Áustria", tarefa: "Fazer registro de residência (Anmeldung)", responsavel: "Priscila"},
+            {categoria: "Registro na Áustria", tarefa: "Obter número de seguridade social", responsavel: "Priscila"},
+            {categoria: "Registro na Áustria", tarefa: "Registrar-se no sistema de saúde", responsavel: "Priscila"},
+            {categoria: "Registro na Áustria", tarefa: "Obter cartão de identificação", responsavel: "Priscila"},
+            {categoria: "Registro na Áustria", tarefa: "Registrar-se para votar", responsavel: "Priscila"},
+            {categoria: "Registro na Áustria", tarefa: "Abrir conta bancária local", responsavel: "Priscila"},
+            {categoria: "Integração", tarefa: "Encontrar médico de família", responsavel: "Priscila"},
+            {categoria: "Integração", tarefa: "Localizar farmácia próxima", responsavel: "Priscila"},
+            {categoria: "Integração", tarefa: "Conhecer vizinhança", responsavel: "Priscila"},
+            {categoria: "Integração", tarefa: "Encontrar supermercados", responsavel: "Priscila"},
+            {categoria: "Integração", tarefa: "Localizar serviços públicos", responsavel: "Priscila"},
+            {categoria: "Integração", tarefa: "Participar de grupos de expatriados", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Cancelar plano de saúde", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Cancelar assinaturas e serviços", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Cancelar linha telefônica", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Cancelar internet banda larga", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Cancelar TV por assinatura", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Cancelar seguro do carro", responsavel: "Priscila"},
+            {categoria: "Cancelamentos Brasil", tarefa: "Vender ou transferir veículo", responsavel: "Priscila"},
+            {categoria: "Despedidas", tarefa: "Organizar festa de despedida", responsavel: "Priscila"},
+            {categoria: "Despedidas", tarefa: "Despedir-se de amigos", responsavel: "Priscila"},
+            {categoria: "Despedidas", tarefa: "Despedir-se da família", responsavel: "Priscila"},
+            {categoria: "Despedidas", tarefa: "Despedir-se de colegas de trabalho", responsavel: "Priscila"},
+            {categoria: "Viagem", tarefa: "Comprar passagem aérea", responsavel: "Priscila"},
+            {categoria: "Viagem", tarefa: "Fazer check-in online", responsavel: "Priscila"},
+            {categoria: "Viagem", tarefa: "Preparar bagagem de mão", responsavel: "Priscila"},
+            {categoria: "Viagem", tarefa: "Preparar bagagem despachada", responsavel: "Priscila"},
+            {categoria: "Viagem", tarefa: "Organizar documentos de viagem", responsavel: "Priscila"},
+            {categoria: "Primeiros Dias", tarefa: "Comprar chip de celular local", responsavel: "Priscila"},
+            {categoria: "Primeiros Dias", tarefa: "Localizar supermercado", responsavel: "Priscila"},
+            {categoria: "Primeiros Dias", tarefa: "Comprar itens de primeira necessidade", responsavel: "Priscila"},
+            {categoria: "Primeiros Dias", tarefa: "Configurar internet no apartamento", responsavel: "Priscila"},
+            {categoria: "Primeiros Dias", tarefa: "Explorar transporte público", responsavel: "Priscila"},
+            {categoria: "Adaptação", tarefa: "Praticar alemão diariamente", responsavel: "Priscila"},
+            {categoria: "Adaptação", tarefa: "Aprender sobre cultura local", responsavel: "Priscila"},
+            {categoria: "Adaptação", tarefa: "Conhecer tradições austríacas", responsavel: "Priscila"},
+            {categoria: "Adaptação", tarefa: "Fazer novos amigos", responsavel: "Priscila"},
+            {categoria: "Adaptação", tarefa: "Participar de atividades comunitárias", responsavel: "Priscila"},
+            {categoria: "Emergência", tarefa: "Memorizar números de emergência", responsavel: "Priscila"},
+            {categoria: "Emergência", tarefa: "Localizar hospital mais próximo", responsavel: "Priscila"},
+            {categoria: "Emergência", tarefa: "Conhecer delegacia local", responsavel: "Priscila"},
+            {categoria: "Emergência", tarefa: "Ter contato da embaixada brasileira", responsavel: "Priscila"},
+            {categoria: "Legal", tarefa: "Entender direitos trabalhistas", responsavel: "Priscila"},
+            {categoria: "Legal", tarefa: "Conhecer leis de imigração", responsavel: "Priscila"},
+            {categoria: "Legal", tarefa: "Entender sistema tributário", responsavel: "Priscila"},
+            {categoria: "Legal", tarefa: "Registrar-se no consulado brasileiro", responsavel: "Priscila"},
+            {categoria: "Idioma", tarefa: "Inscrever-se em curso de alemão", responsavel: "Priscila"},
+            {categoria: "Idioma", tarefa: "Praticar conversação", responsavel: "Priscila"},
+            {categoria: "Idioma", tarefa: "Usar aplicativos de idioma", responsavel: "Priscila"},
+            {categoria: "Idioma", tarefa: "Assistir TV local", responsavel: "Priscila"},
+            {categoria: "Idioma", tarefa: "Ler jornais locais", responsavel: "Priscila"},
+            {categoria: "Rede de Contatos", tarefa: "Conectar-se com brasileiros na Áustria", responsavel: "Priscila"},
+            {categoria: "Rede de Contatos", tarefa: "Participar de eventos de networking", responsavel: "Priscila"},
+            {categoria: "Rede de Contatos", tarefa: "Usar LinkedIn para conexões locais", responsavel: "Priscila"},
+            {categoria: "Rede de Contatos", tarefa: "Participar de grupos no Facebook", responsavel: "Priscila"},
+            {categoria: "Lazer", tarefa: "Explorar pontos turísticos", responsavel: "Priscila"},
+            {categoria: "Lazer", tarefa: "Conhecer restaurantes locais", responsavel: "Priscila"},
+            {categoria: "Lazer", tarefa: "Encontrar atividades de lazer", responsavel: "Priscila"},
+            {categoria: "Lazer", tarefa: "Descobrir parques e áreas verdes", responsavel: "Priscila"},
+            {categoria: "Longo Prazo", tarefa: "Avaliar possibilidade de cidadania", responsavel: "Priscila"},
+            {categoria: "Longo Prazo", tarefa: "Planejar aposentadoria", responsavel: "Priscila"},
+            {categoria: "Longo Prazo", tarefa: "Considerar compra de imóvel", responsavel: "Priscila"},
+            {categoria: "Longo Prazo", tarefa: "Estabelecer plano de carreira", responsavel: "Priscila"},
+            {categoria: "Tecnologia", tarefa: "Configurar VPN para serviços brasileiros", responsavel: "Priscila"},
+            {categoria: "Tecnologia", tarefa: "Baixar aplicativos úteis locais", responsavel: "Priscila"},
+            {categoria: "Tecnologia", tarefa: "Configurar streaming local", responsavel: "Priscila"}
+        ];
+
+        // Função para determinar prioridade
+        function definirPrioridade(tarefa, categoria) {
+            const tarefaLower = tarefa.toLowerCase();
+            const categoriaLower = categoria.toLowerCase();
+            
+            // URGENTE - pode começar agora
+            if (tarefaLower.includes('traduzir') || tarefaLower.includes('apostilar') || 
+                tarefaLower.includes('pesquisar') || tarefaLower.includes('definir cidade') ||
+                tarefaLower.includes('verificar validade') || tarefaLower.includes('separar') ||
+                tarefaLower.includes('solicitar certidão') || categoriaLower.includes('planejamento inicial')) {
+                return 'URGENTE';
+            }
+            
+            // IMPORTANTE - próximos 30 dias
+            if (tarefaLower.includes('visto') || tarefaLower.includes('consulado') ||
+                tarefaLower.includes('preencher formulário') || tarefaLower.includes('agendar') ||
+                categoriaLower.includes('visto') || categoriaLower.includes('documentos')) {
+                return 'IMPORTANTE';
+            }
+            
+            // PLANEJAMENTO - próximos 3 meses
+            if (categoriaLower.includes('financeiro') || categoriaLower.includes('saúde') ||
+                categoriaLower.includes('trabalho') || categoriaLower.includes('moradia') ||
+                categoriaLower.includes('educação') || categoriaLower.includes('transporte')) {
+                return 'PLANEJAMENTO';
+            }
+            
+            // FUTURO - mais de 3 meses
+            return 'FUTURO';
+        }
+
+        // Função para calcular data sugerida baseada na prioridade
+        function calcularDataSugerida(prioridade, tarefa) {
+            const hoje = new Date(2025, 6, 15); // 15 de julho de 2025
+            const dataCalculada = new Date(hoje);
+            
+            if (prioridade === 'URGENTE') {
+                // Entre hoje e 2 semanas
+                dataCalculada.setDate(hoje.getDate() + Math.floor(Math.random() * 14));
+            } else if (prioridade === 'IMPORTANTE') {
+                // Entre 2 semanas e 6 semanas
+                dataCalculada.setDate(hoje.getDate() + 14 + Math.floor(Math.random() * 28));
+            } else if (prioridade === 'PLANEJAMENTO') {
+                // Entre 1.5 e 4 meses
+                dataCalculada.setMonth(hoje.getMonth() + 1 + Math.floor(Math.random() * 3));
+            } else {
+                // FUTURO - entre 4 e 8 meses
+                dataCalculada.setMonth(hoje.getMonth() + 4 + Math.floor(Math.random() * 4));
+            }
+            
+            return dataCalculada.toLocaleDateString('pt-BR');
+        }
+
+        // Função para sugerir dependências
+        function sugerirDependencias(tarefa, categoria) {
+            const tarefaLower = tarefa.toLowerCase();
+            
+            if (tarefaLower.includes('apostilar')) {
+                return 'Tradução do documento';
+            } else if (tarefaLower.includes('visto') && tarefaLower.includes('consulado')) {
+                return 'Documentos traduzidos e apostilados';
+            } else if (tarefaLower.includes('conta bancária') && categoria === 'Registro na Áustria') {
+                return 'Registro de residência (Anmeldung)';
+            } else if (tarefaLower.includes('matrícula') || tarefaLower.includes('escola')) {
+                return 'Registro de residência';
+            } else if (tarefaLower.includes('cancelar') && categoria === 'Cancelamentos Brasil') {
+                return 'Confirmação da mudança';
+            } else if (tarefaLower.includes('passagem aérea')) {
+                return 'Visto aprovado';
+            } else if (tarefaLower.includes('mudança') || tarefaLower.includes('embalar')) {
+                return 'Moradia definida na Áustria';
+            }
+            
+            return '';
+        }
+
+        // Reorganizar dados com prioridades e novas colunas
+        let tarefas = tarefasOriginais.map((item, index) => {
+            const prioridade = definirPrioridade(item.tarefa, item.categoria);
+            return {
+                id: index + 1,
+                prioridade: prioridade,
+                categoria: item.categoria,
+                tarefa: item.tarefa,
+                dataSugerida: calcularDataSugerida(prioridade, item.tarefa),
+                responsavel: item.responsavel || 'Priscila',
+                status: 'Não iniciado',
+                progresso: 0,
+                dependencias: sugerirDependencias(item.tarefa, item.categoria),
+                observacoes: ''
+            };
+        });
+
+        // Ordenar por prioridade
+        const ordemPrioridade = {
+            'URGENTE': 1,
+            'IMPORTANTE': 2,
+            'PLANEJAMENTO': 3,
+            'FUTURO': 4
+        };
+
+        tarefas.sort((a, b) => ordemPrioridade[a.prioridade] - ordemPrioridade[b.prioridade]);
+
+        // Carregar dados na tabela
+        function carregarTabela(dados = tarefas) {
+            const tbody = document.getElementById('corpoTabela');
+            tbody.innerHTML = '';
+            
+            dados.forEach(tarefa => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${tarefa.id}</td>
+                    <td>
+                        <select class="status-select" onchange="atualizarPrioridade(${tarefa.id}, this.value)" 
+                                style="background: ${getPriorityColor(tarefa.prioridade)}; color: white; font-weight: bold;">
+                            <option value="URGENTE" ${tarefa.prioridade === 'URGENTE' ? 'selected' : ''}>🔴 URGENTE</option>
+                            <option value="IMPORTANTE" ${tarefa.prioridade === 'IMPORTANTE' ? 'selected' : ''}>🟡 IMPORTANTE</option>
+                            <option value="PLANEJAMENTO" ${tarefa.prioridade === 'PLANEJAMENTO' ? 'selected' : ''}>🔵 PLANEJAMENTO</option>
+                            <option value="FUTURO" ${tarefa.prioridade === 'FUTURO' ? 'selected' : ''}>⚫ FUTURO</option>
+                        </select>
+                    </td>
+                    <td class="tarefa-cell">${tarefa.tarefa}</td>
+                    <td>
+                        <input type="date" class="data-input" value="${convertToDateInput(tarefa.dataSugerida)}" 
+                               onchange="atualizarDataSugerida(${tarefa.id}, this.value)">
+                    </td>
+                    <td>
+                        <input type="text" class="responsavel-input" value="${tarefa.responsavel}" 
+                               onchange="atualizarResponsavel(${tarefa.id}, this.value)">
+                    </td>
+                    <td>
+                        <select class="status-select" onchange="atualizarStatus(${tarefa.id}, this.value)">
+                            <option value="Não iniciado" ${tarefa.status === 'Não iniciado' ? 'selected' : ''}>Não iniciado</option>
+                            <option value="Em andamento" ${tarefa.status === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
+                            <option value="Concluído" ${tarefa.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${tarefa.progresso}%"></div>
+                            <div class="progress-text">${tarefa.progresso}%</div>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" class="dependencias-input" placeholder="Ex: Tradução do documento" 
+                               value="${tarefa.dependencias}" onchange="atualizarDependencias(${tarefa.id}, this.value)">
+                    </td>
+                    <td>
+                        <textarea class="observacoes-input" placeholder="Adicione observações..." 
+                                onchange="atualizarObservacoes(${tarefa.id}, this.value)">${tarefa.observacoes}</textarea>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Funções de atualização
+        function atualizarPrioridade(id, novaPrioridade) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.prioridade = novaPrioridade;
+                // Recalcular data sugerida baseada na nova prioridade
+                tarefa.dataSugerida = calcularDataSugerida(novaPrioridade, tarefa.tarefa);
+                atualizarEstatisticas();
+                carregarTabela(filtrarTarefas());
+            }
+        }
+
+        function atualizarDataSugerida(id, novaData) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                // Converter formato da data
+                const dataObj = new Date(novaData);
+                tarefa.dataSugerida = dataObj.toLocaleDateString('pt-BR');
+            }
+        }
+
+        function atualizarResponsavel(id, novoResponsavel) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.responsavel = novoResponsavel;
+            }
+        }
+
+        function atualizarDependencias(id, novasDependencias) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.dependencias = novasDependencias;
+            }
+        }
+
+        function getPriorityColor(prioridade) {
+            switch(prioridade) {
+                case 'URGENTE': return '#e74c3c';
+                case 'IMPORTANTE': return '#f39c12';
+                case 'PLANEJAMENTO': return '#3498db';
+                case 'FUTURO': return '#95a5a6';
+                default: return '#95a5a6';
+            }
+        }
+
+        function convertToDateInput(dataBR) {
+            // Converter de DD/MM/YYYY para YYYY-MM-DD
+            const parts = dataBR.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            return '';
+        }
+
+        // Atualizar status (mantém função original)
+        function atualizarStatus(id, novoStatus) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.status = novoStatus;
+                
+                // Atualizar progresso automaticamente
+                if (novoStatus === 'Não iniciado') {
+                    tarefa.progresso = 0;
+                } else if (novoStatus === 'Em andamento') {
+                    tarefa.progresso = 50;
+                } else if (novoStatus === 'Concluído') {
+                    tarefa.progresso = 100;
+                }
+                
+                atualizarEstatisticas();
+                carregarTabela(filtrarTarefas());
+            }
+        }
+
+        // Atualizar observações
+        function atualizarObservacoes(id, observacoes) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.observacoes = observacoes;
+            }
+        }
+
+        // Atualizar estatísticas
+        function atualizarEstatisticas() {
+            const total = tarefas.length;
+            const urgentes = tarefas.filter(t => t.prioridade === 'URGENTE').length;
+            const concluidas = tarefas.filter(t => t.status === 'Concluído').length;
+            const progresso = Math.round((concluidas / total) * 100);
+            
+            document.getElementById('totalTarefas').textContent = total;
+            document.getElementById('urgentes').textContent = urgentes;
+            document.getElementById('concluidas').textContent = concluidas;
+            document.getElementById('progresso').textContent = progresso + '%';
+        }
+
+        // Filtrar tarefas
+        function filtrarTarefas() {
+            const filtroPrioridade = document.getElementById('filtrarPrioridade').value;
+            const filtroStatus = document.getElementById('filtrarStatus').value;
+            const pesquisa = document.getElementById('pesquisar').value.toLowerCase();
+            
+            return tarefas.filter(tarefa => {
+                const matchPrioridade = !filtroPrioridade || tarefa.prioridade === filtroPrioridade;
+                const matchStatus = !filtroStatus || tarefa.status === filtroStatus;
+                const matchPesquisa = !pesquisa || tarefa.tarefa.toLowerCase().includes(pesquisa);
+                
+                return matchPrioridade && matchStatus && matchPesquisa;
+            });
+        }
+
+        // Event listeners para filtros
+        document.getElementById('filtrarPrioridade').addEventListener('change', () => {
+            carregarTabela(filtrarTarefas());
+        });
+
+        document.getElementById('filtrarStatus').addEventListener('change', () => {
+            carregarTabela(filtrarTarefas());
+        });
+
+        document.getElementById('pesquisar').addEventListener('input', () => {
+            carregarTabela(filtrarTarefas());
+        });
+
+        // Exportar para Excel
+        function exportarParaExcel() {
+            // Criar dados para exportação
+            const dadosExport = tarefas.map(tarefa => ({
+                'ID': tarefa.id,
+                'Prioridade': tarefa.prioridade,
+                'Categoria': tarefa.categoria,
+                'Tarefa': tarefa.tarefa,
+                'Data Sugerida': tarefa.dataSugerida,
+                'Responsável': tarefa.responsavel,
+                'Status': tarefa.status,
+                'Progresso (%)': tarefa.progresso,
+                'Dependências': tarefa.dependencias,
+                'Observações': tarefa.observacoes
+            }));
+
+            // Converter para CSV
+            const headers = Object.keys(dadosExport[0]);
+            const csvContent = [
+                headers.join(','),
+                ...dadosExport.map(row => 
+                    headers.map(header => 
+                        `"${(row[header] || '').toString().replace(/"/g, '""')}"`
+                    ).join(',')
+                )
+            ].join('\n');
+
+            // Download do arquivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'checklist_mudanca_austria_reorganizado.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Inicializar
+        carregarTabela();
+        atualizarEstatisticas();
+    </script>
+</body>
+</html>
