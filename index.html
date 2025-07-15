@@ -5,12 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checklist Mudança Áustria - Reorganizado</title>
     <style>
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .login-container h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        
+        .login-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-error {
+            color: #e74c3c;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .login-hint {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+        function getPriorityColor(prioridade) {
+            switch(prioridade) {
+                case 'URGENTE': return '#e74c3c';
+                case 'IMPORTANTE': return '#f39c12';
+                case 'PLANEJAMENTO': return '#3498db';
+                case 'FUTURO': return '#95a5a6';
+                default: return '#95a5a6';
+            }
+        }
+
+        function convertToDateInput(dataBR) {
+            const parts = dataBR.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            return '';
         }
         
         .container {
@@ -317,6 +406,22 @@
     </style>
 </head>
 <body>
+    <!-- Tela de Login -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <h2>🇦🇹 Acesso Restrito</h2>
+            <p>Sistema de Checklist - Mudança Áustria</p>
+            <input type="password" class="login-input" id="passwordInput" placeholder="Digite a senha..." />
+            <button class="login-btn" onclick="verificarSenha()">Entrar</button>
+            <div class="login-error" id="loginError">❌ Senha incorreta!</div>
+            <div class="login-hint">💡 Dica: Nome da cidade de destino + ano</div>
+        </div>
+    </div>
+    
+    <!-- Sistema Principal (oculto inicialmente) -->
+    <!-- Sistema Principal (oculto inicialmente) -->
+    <div id="mainSystem" style="display: none;">
+        
     <div class="sync-status" id="syncStatus">
         ☁️ Sincronizado
     </div>
@@ -420,7 +525,191 @@
         📊 Exportar Excel
     </button>
     
+    </div> <!-- Fim do mainSystem -->
+    
     <script>
+        const SENHAS_VALIDAS = [
+            "f8b5c1a2d4e6c8f9a1b3d5e7f9c2a4b6d8e0f2a4c6d8e0f2a4b6c8d0e2f4a6b8c0",
+            "a9c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4",
+            "b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9a1c3e5f7b9c1e3d5f7a9b1c3e5"
+        ];
+        
+        // Função para gerar hash SHA-256
+        async function gerarHash(texto) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(texto);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+        
+        // Verificar senha
+        async function verificarSenha() {
+            const senha = document.getElementById('passwordInput').value;
+            const hashDigitado = await gerarHash(senha.toLowerCase());
+            
+            if (SENHAS_VALIDAS.includes(hashDigitado)) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainSystem').style.display = 'block';
+                inicializar();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                setTimeout(() => {
+                    document.getElementById('loginError').style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Enter para fazer login
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verificarSenha();
+            }
+        });
+        // Configuração do GitHub
+        const GITHUB_CONFIG = {
+            owner: 'aalvestn',
+            repo: 'mudanca-austria-checklist',
+            token: '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',
+            fileName: 'checklist-data.json'
+        };
+
+        // Sistema de sincronização
+        let syncTimeout;
+        let isLoading = false;
+
+        function updateSyncStatus(status, message) {
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.className = 'sync-status';
+            
+            switch(status) {
+                case 'syncing':
+                    syncStatus.classList.add('syncing');
+                    syncStatus.innerHTML = '🔄 ' + message;
+                    break;
+                case 'error':
+                    syncStatus.classList.add('error');
+                    syncStatus.innerHTML = '❌ ' + message;
+                    break;
+                case 'success':
+                    syncStatus.innerHTML = '☁️ ' + message;
+                    break;
+            }
+        }
+
+        // Salvar no GitHub
+        async function salvarNoGitHub(dados) {
+            if (isLoading) return;
+            
+            try {
+                updateSyncStatus('syncing', 'Salvando...');
+                
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.fileName}`;
+                
+                // Primeiro, tentar buscar o arquivo existente para pegar o SHA
+                let sha = null;
+                try {
+                    const getResponse = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (getResponse.ok) {
+                        const existingFile = await getResponse.json();
+                        sha = existingFile.sha;
+                    }
+                } catch (e) {
+                    // Arquivo não existe ainda, tudo bem
+                }
+
+                // Preparar dados para salvar
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(dados, null, 2))));
+                
+                const payload = {
+                    message: `Atualização automática - ${new Date().toLocaleString('pt-BR')}`,
+                    content: content
+                };
+                
+                if (sha) {
+                    payload.sha = sha;
+                }
+
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    updateSyncStatus('success', 'Sincronizado');
+                    setTimeout(() => updateSyncStatus('success', 'Sincronizado'), 2000);
+                } else {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                updateSyncStatus('error', 'Erro ao salvar');
+                setTimeout(() => updateSyncStatus('success', 'Sincronizado'), 5000);
+            }
+        }
+
+        // Carregar do GitHub
+        async function carregarDoGitHub() {
+            if (isLoading) return null;
+            
+            try {
+                isLoading = true;
+                updateSyncStatus('syncing', 'Carregando...');
+                
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.fileName}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const content = decodeURIComponent(escape(atob(fileData.content)));
+                    const dados = JSON.parse(content);
+                    
+                    updateSyncStatus('success', 'Carregado da nuvem');
+                    return dados;
+                } else if (response.status === 404) {
+                    // Arquivo não existe ainda, criar com dados padrão
+                    updateSyncStatus('success', 'Primeira vez - criando arquivo');
+                    return null;
+                } else {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar:', error);
+                updateSyncStatus('error', 'Erro ao carregar');
+                return null;
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Auto-save com debounce
+        function agendarSalvamento() {
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(() => {
+                salvarNoGitHub(tarefas);
+            }, 2000); // Salva 2 segundos após a última alteração
+        }
         // Dados reorganizados da planilha original
         const tarefasOriginais = [
             {categoria: "Antes da Mudança", tarefa: "Verificar validade dos passaportes (mínimo 6 meses)", responsavel: "Priscila"},
@@ -725,24 +1014,24 @@
             });
         }
 
-        // Funções de atualização
+        // Funções de atualização (modificadas para auto-save)
         function atualizarPrioridade(id, novaPrioridade) {
             const tarefa = tarefas.find(t => t.id === id);
             if (tarefa) {
                 tarefa.prioridade = novaPrioridade;
-                // Recalcular data sugerida baseada na nova prioridade
                 tarefa.dataSugerida = calcularDataSugerida(novaPrioridade, tarefa.tarefa);
                 atualizarEstatisticas();
                 carregarTabela(filtrarTarefas());
+                agendarSalvamento(); // Auto-save
             }
         }
 
         function atualizarDataSugerida(id, novaData) {
             const tarefa = tarefas.find(t => t.id === id);
             if (tarefa) {
-                // Converter formato da data
                 const dataObj = new Date(novaData);
                 tarefa.dataSugerida = dataObj.toLocaleDateString('pt-BR');
+                agendarSalvamento(); // Auto-save
             }
         }
 
@@ -750,6 +1039,7 @@
             const tarefa = tarefas.find(t => t.id === id);
             if (tarefa) {
                 tarefa.responsavel = novoResponsavel;
+                agendarSalvamento(); // Auto-save
             }
         }
 
@@ -757,35 +1047,23 @@
             const tarefa = tarefas.find(t => t.id === id);
             if (tarefa) {
                 tarefa.dependencias = novasDependencias;
+                agendarSalvamento(); // Auto-save
             }
         }
 
-        function getPriorityColor(prioridade) {
-            switch(prioridade) {
-                case 'URGENTE': return '#e74c3c';
-                case 'IMPORTANTE': return '#f39c12';
-                case 'PLANEJAMENTO': return '#3498db';
-                case 'FUTURO': return '#95a5a6';
-                default: return '#95a5a6';
+        function atualizarObservacoes(id, observacoes) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.observacoes = observacoes;
+                agendarSalvamento(); // Auto-save
             }
         }
 
-        function convertToDateInput(dataBR) {
-            // Converter de DD/MM/YYYY para YYYY-MM-DD
-            const parts = dataBR.split('/');
-            if (parts.length === 3) {
-                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-            }
-            return '';
-        }
-
-        // Atualizar status (mantém função original)
         function atualizarStatus(id, novoStatus) {
             const tarefa = tarefas.find(t => t.id === id);
             if (tarefa) {
                 tarefa.status = novoStatus;
                 
-                // Atualizar progresso automaticamente
                 if (novoStatus === 'Não iniciado') {
                     tarefa.progresso = 0;
                 } else if (novoStatus === 'Em andamento') {
@@ -796,6 +1074,7 @@
                 
                 atualizarEstatisticas();
                 carregarTabela(filtrarTarefas());
+                agendarSalvamento(); // Auto-save
             }
         }
 
@@ -887,9 +1166,30 @@
             document.body.removeChild(link);
         }
 
-        // Inicializar
-        carregarTabela();
-        atualizarEstatisticas();
+        // Inicialização com carregamento do GitHub (só roda após login)
+        async function inicializar() {
+            document.getElementById('syncStatus').innerHTML = '☁️ Sincronizado';
+            updateSyncStatus('syncing', 'Inicializando...');
+            
+            // Tentar carregar dados do GitHub
+            const dadosCarregados = await carregarDoGitHub();
+            
+            if (dadosCarregados && dadosCarregados.length > 0) {
+                // Usar dados do GitHub
+                tarefas = dadosCarregados;
+                updateSyncStatus('success', 'Dados carregados da nuvem');
+            } else {
+                // Usar dados padrão e salvar no GitHub
+                updateSyncStatus('syncing', 'Criando arquivo inicial...');
+                await salvarNoGitHub(tarefas);
+            }
+            
+            carregarTabela();
+            atualizarEstatisticas();
+        }
+
+        // NÃO inicializar automaticamente - só após login
+        // inicializar();
     </script>
 </body>
 </html>
